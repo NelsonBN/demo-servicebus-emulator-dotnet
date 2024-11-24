@@ -63,10 +63,14 @@ public class IntegrationTestsFactory : IAsyncLifetime
     public string GetServiceBusConnectionString()
         => $"Endpoint=sb://{_serviceBusContainer.Hostname}:{_serviceBusContainer.GetMappedPublicPort(SERVICE_BUS_PORT)};SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;";
 
-    public Task InitializeAsync()
-        => Task.WhenAll(
+    public async Task InitializeAsync()
+    {
+        await Task.WhenAll(
             _azureSqlEdgeContainer.StartAsync(),
             _serviceBusContainer.StartAsync());
+
+        await Task.Delay(TimeSpan.FromSeconds(2));
+    }
 
     public Task DisposeAsync()
         => Task.WhenAll(
