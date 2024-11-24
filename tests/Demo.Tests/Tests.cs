@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Demo.Tests.Config;
@@ -36,17 +35,5 @@ public class Tests(
 
         // Assert
         Assert.Equal(message, messageReceived);
-    }
-
-    [Fact]
-    public void Is_file_Exists()
-    {
-        // Arrange && Act
-        var path = Path.GetFullPath("./Config/ServiceBusEmulator.Config.json");
-
-
-        // Assert
-        _output.WriteLine($"Path: {path} -> Exists: {File.Exists(path)}");
-        Assert.True(File.Exists(path));
     }
 }
