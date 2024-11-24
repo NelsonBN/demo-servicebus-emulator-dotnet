@@ -34,7 +34,10 @@ public class IntegrationTestsFactory : IAsyncLifetime
             .WithNetworkAliases(sqlContainerName)
             .WithWaitStrategy(Wait.ForUnixContainer()
                 .UntilMessageIsLogged("SQL Server is now ready for client connections.", w => w.WithTimeout(TimeSpan.FromSeconds(10))))
-            .WithOutputConsumer(Consume.DoNotConsumeStdoutAndStderr())
+            .WithOutputConsumer(
+                Consume.RedirectStdoutAndStderrToStream(
+                    Console.OpenStandardOutput(),
+                    Console.OpenStandardError()))
             .Build();
 
         _serviceBusContainer = new ContainerBuilder()
@@ -48,8 +51,11 @@ public class IntegrationTestsFactory : IAsyncLifetime
                 "/ServiceBus_Emulator/ConfigFiles/Config.json")
             .WithNetwork(_containersNetwork)
             .WithWaitStrategy(Wait.ForUnixContainer()
-                .UntilMessageIsLogged("Emulator Service is Successfully Up!", w => w.WithTimeout(TimeSpan.FromSeconds(30))))
-            .WithOutputConsumer(Consume.DoNotConsumeStdoutAndStderr())
+                .UntilMessageIsLogged("Emulator Service is Successfully Up!", w => w.WithTimeout(TimeSpan.FromSeconds(60))))
+            .WithOutputConsumer(
+                Consume.RedirectStdoutAndStderrToStream(
+                    Console.OpenStandardOutput(),
+                    Console.OpenStandardError()))
             .Build();
     }
 
