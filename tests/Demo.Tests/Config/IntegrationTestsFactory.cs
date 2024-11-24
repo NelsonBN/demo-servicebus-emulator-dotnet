@@ -15,6 +15,8 @@ public class IntegrationTestsFactory : IAsyncLifetime
     private readonly IContainer _azureSqlEdgeContainer;
     private readonly IContainer _serviceBusContainer;
 
+
+
     public IntegrationTestsFactory()
     {
         _containersNetwork = new NetworkBuilder()
@@ -32,6 +34,7 @@ public class IntegrationTestsFactory : IAsyncLifetime
             .WithNetworkAliases(sqlContainerName)
             .WithWaitStrategy(Wait.ForUnixContainer()
                 .UntilMessageIsLogged("SQL Server is now ready for client connections.", w => w.WithTimeout(TimeSpan.FromSeconds(10))))
+            .WithOutputConsumer(Consume.DoNotConsumeStdoutAndStderr())
             .Build();
 
         _serviceBusContainer = new ContainerBuilder()
@@ -46,6 +49,7 @@ public class IntegrationTestsFactory : IAsyncLifetime
             .WithNetwork(_containersNetwork)
             .WithWaitStrategy(Wait.ForUnixContainer()
                 .UntilMessageIsLogged("Emulator Service is Successfully Up!", w => w.WithTimeout(TimeSpan.FromSeconds(30))))
+            .WithOutputConsumer(Consume.DoNotConsumeStdoutAndStderr())
             .Build();
     }
 
