@@ -4,16 +4,15 @@ networks:
 
 services:
   servicebus-emulator:
-    image: mcr.microsoft.com/azure-messaging/servicebus-emulator:1.0.1
+    image: mcr.microsoft.com/azure-messaging/servicebus-emulator:2.0.0
     container_name: servicebus-emulator
     environment:
       SQL_SERVER: sqledge
       MSSQL_SA_PASSWORD: Ab123456789!
       ACCEPT_EULA: Y
-    volumes:
-      - ./src/ServiceBusEmulator/ServiceBusEmulator.Config.json:/ServiceBus_Emulator/ConfigFiles/Config.json
     ports:
-      - 5672:5672
+      - 5672:5672 # AMQP port
+      - 5300:5300 # Port on which emulator will expose Management & Health-check APIs
     networks:
       - demo
     depends_on:

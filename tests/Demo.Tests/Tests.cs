@@ -1,25 +1,23 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
-using Demo.Tests.Config;
-using Xunit.Abstractions;
+using Azure.Messaging.ServiceBus.Administration;
 
 namespace Demo.Tests;
 
-[Collection(nameof(CollectionIntegrationTests))]
-public class Tests(
-    IntegrationTestsFactory factory,
-    ITestOutputHelper output)
+public class Tests(IntegrationTestsFixture factory)
 {
-    private readonly IntegrationTestsFactory _factory = factory;
-    private readonly ITestOutputHelper _output = output;
+    private readonly IntegrationTestsFixture _factory = factory;
+
 
     [Fact]
-    public async Task Demo_test()
+    public async Task Demo_Test()
     {
         // Arrange
-        var queueName = "demo-queue";
+        var queueName = $"demo-queue-{Guid.NewGuid()}";
+
         var client = new ServiceBusClient(_factory.GetServiceBusConnectionString());
+        var adminClient = new ServiceBusAdministrationClient(_factory.GetAdminServiceBusConnectionString());
 
         var sender = client.CreateSender(queueName);
         var receiver = client.CreateReceiver(queueName);
@@ -28,8 +26,10 @@ public class Tests(
 
 
         // Act
-        await sender.SendMessageAsync(new ServiceBusMessage(message));
-        var act = await receiver.ReceiveMessageAsync();
+        await adminClient.CreateQueueAsync(queueName, cancellationToken: TestContext.Current.CancellationToken);
+
+        await sender.SendMessageAsync(new ServiceBusMessage(message), TestContext.Current.CancellationToken);
+        var act = await receiver.ReceiveMessageAsync(cancellationToken: TestContext.Current.CancellationToken);
         var messageReceived = act.Body.ToString();
 
 
